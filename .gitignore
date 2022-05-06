@@ -129,5 +129,5 @@ dmypy.json
 .pyre/
 
 # local data
-media/
-static/
+media
+static

@@ -45,4 +45,7 @@ def check_resolve(task, resolve):
             result.append(getattr(resolving, "get_result")())
         except Exception as exc:
             result.append(exc)
-    return result
+    if result == task.expected:
+        return "ok"
+    else:
+        return "have problems"

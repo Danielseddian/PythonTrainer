@@ -12,7 +12,7 @@ class Task(models.Model):
     code = models.TextField()
     call = models.CharField(max_length=300)
     data = ArrayField(models.IntegerField())
-
+    expected = ArrayField(ArrayField(models.IntegerField()))
     is_pub = models.BooleanField(default=True)
 
 

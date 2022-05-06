@@ -43,6 +43,7 @@ def focus_pocus(i):
 """
 TASK_CALL = "make_magic_replace"
 TASK_DATA = [1, 0, 2]
+TASK_EXPECTED = [[1, 0], [2, 1], [1, 0]]
 
 RESOLVE_ID = [0]
 RESOLVE_RESOLVE = """def make_magic_replace(magic_book):
@@ -54,7 +55,7 @@ USER_ID = [0]
 
 
 class User:
-    def __init__(self, username: str) -> None:
+    def __init__(self, username: str):
         USER_ID[0] += 1
         self.id = USER_ID[0]
         self.username = username
@@ -64,7 +65,7 @@ class User:
 
 
 class Task:
-    def __init__(self, name: str, text: str, task: str, code: str, call: str, data: dict, is_pub: bool) -> None:
+    def __init__(self, name: str, text: str, task: str, code: str, call: str, data: list, expected: list, is_pub: bool):
         TASK_ID[0] += 1
         self.id = TASK_ID[0]
         self.name = name
@@ -73,6 +74,7 @@ class Task:
         self.code = code
         self.call = call
         self.data = data
+        self.expected = expected
         self.is_pub = is_pub
 
     def save(self):
@@ -80,7 +82,7 @@ class Task:
 
 
 class Resolve:
-    def __init__(self, folder: str, user: User, task: Task, resolve: str, date=dt.now()) -> None:
+    def __init__(self, folder: str, user: User, task: Task, resolve: str, date=dt.now()):
         RESOLVE_ID[0] += 1
         self.id = RESOLVE_ID[0]
         self.folder = folder
@@ -97,6 +99,7 @@ class Resolve:
         self.user = user or self.user
         self.task = task or self.task
         self.resolve = resolve or self.resolve
+        self.date = date
 
 
 class Request:
@@ -117,6 +120,7 @@ TASK = Task(
     task=TASK_TASK,
     call=TASK_CALL,
     data=TASK_DATA,
+    expected=TASK_EXPECTED,
     is_pub=True,
 )
 REQUEST = Request(user=USER, data={"task": TASK})
