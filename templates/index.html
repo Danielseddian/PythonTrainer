@@ -2,6 +2,11 @@
     {% extends "base.html" %}
     {% block content %}
         {% for task in page %}
+            <div>
+            {% if user.is_authenticated %}
+                <a href="{% url "trainer:logout" %}">Выйти</a>
+            {% endif %}
+            </div>
             <h2>{{ task.name }}</h2>
             <h4 style="color: #666666; width: 500px">{{ task.text|linebreaks }}</h4>
             <h2>Задание:</h2>

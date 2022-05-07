@@ -86,7 +86,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru-ru'
 
 TIME_ZONE = 'UTC'
 
@@ -103,9 +103,16 @@ STATIC_URL = '/static/'
 STATIC_ROOT = join(BASE_DIR, "static")
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
+LOGOUT_REDIRECT_URL = "trainer:login"
+
+LOGIN_REDIRECT_URL = "trainer:index"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_DIR = "media"
 
 MEDIA_ROOT = join(BASE_DIR, MEDIA_DIR)
+
+EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
+
+EMAIL_FILE_PATH = join(BASE_DIR, "sent_emails")
