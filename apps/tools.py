@@ -1,8 +1,10 @@
 import string
 import secrets
 import os
-from Trainer.settings import MEDIA_ROOT
 import importlib
+
+from Trainer.settings import MEDIA_ROOT
+from ast import literal_eval
 
 
 def make_folder_name(prefix="temp_", symbols=string.ascii_letters + string.digits, length=10):
@@ -38,14 +40,16 @@ def check_resolve(task, resolve):
     file_name = "resolve"
     file_path = write_to_the_file("\n\n".join((task.code, resolve.resolve)), check_directory(resolve.folder), file_name)
     result = []
-    for data in task.data:
+    for data in literal_eval(task.data):
         try:
             resolving = get_import(file_name, file_path)
             getattr(resolving, task.call)(data)
             result.append(getattr(resolving, "get_result")())
         except Exception as exc:
             result.append(exc)
-    if result == task.expected:
-        return "ok"
+    # _____to_do_____ #
+    if result == literal_eval(task.expected):
+        return "Решено"  # Также в index.html
     else:
-        return "have problems"
+        return "Не решено"
+    # --------------- #

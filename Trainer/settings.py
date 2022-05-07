@@ -18,6 +18,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "apps.apps.AppsConfig",
+    'django_better_admin_arrayfield',
 ]
 
 MIDDLEWARE = [
