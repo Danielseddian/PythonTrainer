@@ -3,8 +3,12 @@ import secrets
 import os
 import importlib
 
-from Trainer.settings import MEDIA_ROOT
+from django.core.paginator import Paginator
+from django.db.models import ObjectDoesNotExist
 from ast import literal_eval
+
+from Trainer.settings import MEDIA_ROOT
+from .models import Solution
 
 
 def make_folder_name(prefix="temp_", symbols=string.ascii_letters + string.digits, length=10):
@@ -36,6 +40,25 @@ def get_import(module_name, directory):
     return module
 
 
+def get_page(queryset, page, count=1):
+    paginator = Paginator(queryset, count)
+    return paginator.get_page(page)
+
+
+def get_resolve(task, user):
+    try:
+        return Solution.objects.get(user=user, task=task)
+    except ObjectDoesNotExist:
+        return Solution.objects.create(folder=make_folder_name(), user=user, task=task)
+
+
+class Result:
+    def __init__(self, status=False, title="Не решено", message=None):
+        self.message = message
+        self.title = title
+        self.status = status
+
+
 def check_resolve(task, resolve):
     file_name = "resolve"
     file_path = write_to_the_file("\n\n".join((task.code, resolve.resolve)), check_directory(resolve.folder), file_name)
@@ -47,9 +70,7 @@ def check_resolve(task, resolve):
             result.append(getattr(resolving, "get_result")())
         except Exception as exc:
             result.append(exc)
-    # _____to_do_____ #
-    if result == literal_eval(task.expected):
-        return "Решено"  # Также в index.html
+    if result == (expected := literal_eval(task.expected)):
+        return Result(True, "Решено")
     else:
-        return "Не решено"
-    # --------------- #
+        return Result(False, "Не решено:", [])
