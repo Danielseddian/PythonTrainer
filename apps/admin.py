@@ -7,7 +7,7 @@ from .models import Task, Solution
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin, DynamicArrayMixin):
-    shown_fields = ["name", "text", "task", "code", "call", "data", "default", "expected", "is_pub"]
+    shown_fields = ["name", "text", "task", "code", "call", "data", "default", "expected", "advices", "is_pub"]
     list_display = ["id"] + shown_fields
     list_editable = shown_fields
     list_filter = shown_fields

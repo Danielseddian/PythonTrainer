@@ -60,6 +60,35 @@ class Result:
         self.status = status
 
 
+def get_matrix_length(matrix):
+    return tuple(len(n) for n in matrix if isinstance(n, list))
+
+
+def make_message(result, expected, dictionary):
+    advices = {
+        0: {
+            0: "Похоже, не сработала ни одна из функций, abra_cadabra() или focus_pocus()",
+            1: "Должно было сработать исключение для функции abra_cadabra()",
+            2: "Сработало лишнее исключение для функции abra_cadabra()",
+        },
+        1: {
+            0: "Рома не получил сообщения об ошибке, необходимо использовать print()",
+            1: "Здесь всё должно работать правильно, сообщение об ошибке лишнее",
+            2: "Текст сообщения об ошибке не соответствует",
+        },
+    }
+    message = []
+    if advices:
+        for n, value in enumerate(result):
+            if value != expected[n]:
+                msg = []
+                for m in range(len(value)):
+                    if value[m] != expected[n][m]:
+                        msg.append(advices[m][value[m]])
+                message.append(f"Проверка №{n + 1}: " + "; ".join(msg))
+    return message
+
+
 def check_resolve(task, resolve):
     file_name = "resolve"
     file_path = write_to_the_file("\n\n".join((resolve.resolve, task.code)), check_directory(resolve.folder), file_name)
@@ -73,7 +102,10 @@ def check_resolve(task, resolve):
             shutil.rmtree(os.path.join(MEDIA_ROOT, resolve.folder))
             return Result(False, "Функция не работает:", [str(exc)[:57] + "..."])
     shutil.rmtree(os.path.join(MEDIA_ROOT, resolve.folder))
-    if result == (expected := literal_eval(task.expected)):
-        return Result(True, "Решено")
+    if not get_matrix_length(result) == get_matrix_length(expected := literal_eval(task.expected)):
+        return Result(False, "Неожиданный результат, возможно, стоит обратиться в поддержку", [])
+    elif result == expected:
+        return Result(True, "Решено", [])
     else:
-        return Result(False, "Не решено:", [])
+        message = make_message(result, expected, task)
+        return Result(False, "Не решено:", message)

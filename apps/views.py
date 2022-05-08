@@ -10,7 +10,7 @@ from .tools import check_resolve, get_page, get_resolve
 
 @login_required
 def index(request):
-    page = get_page(Task.objects.all(), request.GET.get('page'))
+    page = get_page(Task.objects.filter(is_pub=True), request.GET.get('page'))
     resolve = get_resolve((task := page[0]), request.user)
     form = ResolveForm(request.POST or {"resolve": resolve.resolve or task.default})
     resolve.resolve = form.data["resolve"]
