@@ -21,12 +21,23 @@ class Task(models.Model):
         ordering = ["id"]
 
     def clean(self):
-        for name, value in (("Data", literal_eval(self.data)), ("Expected", (expected := literal_eval(self.expected)))):
+        check_list = (
+            ("data", literal_eval(self.data)),
+            ("expected", (expected := literal_eval(self.expected))),
+            *(("expected_value", value) for value in expected),
+        )
+        for name, value in check_list:
             if not isinstance(value, list):
                 raise ValidationError(name + " должен быть списком")
         for value in expected:
             if not isinstance(value, list):
-                raise ValidationError("Expected должен быть списком список")
+                raise ValidationError("expected должен быть списком списков")
+        if "def get_result():" not in self.code:
+            raise ValidationError(
+                "code должна содержать функцию get_result(), ",
+                "которая будет возвращать результат проверки кода после каждого запуска. ",
+                "Результат будет сравниваться со списком ожиданий в expected."
+            )
         super().clean()
 
 

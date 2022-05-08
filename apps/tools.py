@@ -2,10 +2,11 @@ import string
 import secrets
 import os
 import importlib
+import shutil
 
+from ast import literal_eval
 from django.core.paginator import Paginator
 from django.db.models import ObjectDoesNotExist
-from ast import literal_eval
 
 from Trainer.settings import MEDIA_ROOT
 from .models import Solution
@@ -61,7 +62,7 @@ class Result:
 
 def check_resolve(task, resolve):
     file_name = "resolve"
-    file_path = write_to_the_file("\n\n".join((task.code, resolve.resolve)), check_directory(resolve.folder), file_name)
+    file_path = write_to_the_file("\n\n".join((resolve.resolve, task.code)), check_directory(resolve.folder), file_name)
     result = []
     for data in literal_eval(task.data):
         try:
@@ -69,7 +70,9 @@ def check_resolve(task, resolve):
             getattr(resolving, task.call)(data)
             result.append(getattr(resolving, "get_result")())
         except Exception as exc:
-            result.append(exc)
+            shutil.rmtree(os.path.join(MEDIA_ROOT, resolve.folder))
+            return Result(False, "Функция не работает:", [str(exc)[:57] + "..."])
+    shutil.rmtree(os.path.join(MEDIA_ROOT, resolve.folder))
     if result == (expected := literal_eval(task.expected)):
         return Result(True, "Решено")
     else:
