@@ -96,11 +96,19 @@ def check_resolve(task, resolve):
     for data in literal_eval(task.data):
         try:
             resolving = get_import(file_name, file_path)
-            getattr(resolving, task.call)(data)
+            getattr(resolving, task.call)(*data)
             result.append(getattr(resolving, "get_result")())
         except Exception as exc:
             shutil.rmtree(os.path.join(MEDIA_ROOT, resolve.folder))
-            return Result(False, "Функция не работает:", [str(exc)[:57] + "..."])
+            return Result(
+                False,
+                "Функция не работает:",
+                [
+                    error
+                    if "expected an indented block after function" not in (error := exc.__repr__()[:57] + "...")
+                    else "Напиши свой код ниже."
+                ],
+            )
     shutil.rmtree(os.path.join(MEDIA_ROOT, resolve.folder))
     if not get_matrix_length(result) == get_matrix_length(expected := literal_eval(task.expected)):
         return Result(False, "Неожиданный результат, возможно, стоит обратиться в поддержку", [])

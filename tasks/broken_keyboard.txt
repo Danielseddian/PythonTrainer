@@ -44,11 +44,11 @@ def focus_pocus(i):
 make_magic_replace
 
 ### data
-[1, 0, 2]
+[[1], [0], [2]]
 
 ### default
 def make_magic_replace(magic_dictionary):
-    # Напиши свой код ниже
+    # Допиши функцию
 
 ### expected
 [[1, 0], [2, 1], [1, 0]]
