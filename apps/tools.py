@@ -93,7 +93,7 @@ def check_resolve(task, resolve):
             message.message = [exc.__repr__()[:57] + "..."]
     else:
         if result == (expected := literal_eval(task.expected)):
-            message.status, message.title = True, "Решено"
+            message.status, message.title = True, (advices["Решено"] if (advices := literal_eval(task.advices)) and "Решено" in advices else "Решено")
         elif not get_matrix_length(result) == get_matrix_length(expected):
             message.title = "Неожиданный результат, возможно, стоит обратиться в поддержку"
         else:
