@@ -7,62 +7,168 @@
 Недавно Женя узнала, что вы можете написать программу, которая находит ошибки, и попросила вас о помощи.
 
 ### task
-Функция calculate_equation() принимает переменную equation_number и должна передать её, а также номер метода по очереди от 1 до 5 в функцию cast_magic_methods(). Если работа функции вызывает математическую ошибку необходимо перехватить её и добавить номер метода в список false_methods, а если работа выполняется - в список true_methods. В конце нужно вывести сообщение: 
+Функция calculate_equation() принимает переменную equation_number и должна передать её, а также номер метода по очереди от 1 до 5 в функцию cast_magic_methods(). Если работа функции вызывает арифметическую ошибку, необходимо перехватить её и добавить номер метода в список false_methods, а если работа выполняется - в список true_methods. В конце нужно вывести сообщение: 
 
 "Метод № {method_number} {result} для задачи № {equation_number}"
 
 - <equation_number> и <method_number> - это переменные, которые получает функция calculate_equation(),
-- <result> - "работает" или "не работает" в зависимости от результата
+- <result> - "работает" или "не работает" в зависимости от результата выполнения функции
 
 ### сode
-result = [0, 0]
-magic_book = {"leviosa": 1, "avis": 2, "lumos": 3, "descendo": 4}
+expected = [0, 0, 0, 0, 0, 0]
+false_methods = []
+true_methods = []
+prints = []
+self_arg = [0]
+
 
 def print(string):
-    if string == "Рома, у тебя в программе ошибка!":
-        result[1] = 1
-    else:
-        result[1] = 2
+    prints.append(string)
 
 
 def get_result():
-    return result
+    result = [0, 0, 1, 1, 0]
+    messages = []
+    message = "Метод № {} {} для задачи № {}"
+    methods = [0, 0, 0, 0, 0]
+    if self_arg[0] == expected[0]:
+        result[0] = 1
+    if 0 not in expected[1:]:
+        result[1] = 1
+    for m in true_methods:
+        methods[m - 1] = 1
+        if not isinstance(m, int) or m not in range(1, 6) or expected[m] != 1:
+            result[2] = 0
+        messages.append(message.format(m, "работает", self_arg[0]))
+    for m in false_methods:
+        methods[m - 1] = 2
+        if not isinstance(m, int) or m not in range(1, 6) or expected[m] != 2:
+            result[3] = 0
+        messages.append(message.format(m, "не работает", self_arg[0]))
+    if set(messages) == set(prints):
+        result[4] = 1
+    return result + methods
 
 
-def abra_cadabra(i):
-    keys = ["lefiosa", "avis", "lumos", "desendo"]
-    magic_book[keys[i]]
-    result[0] = 1
+def get_one(number):
+    if number < 0:
+        expected[1] = 2
+        raise ArithmeticError("The square root cannot be extracted from a negative number")
+    else:
+        expected[1] = 1
 
 
-def focus_pocus(i):
-    keys = ["leviosa", "avis", "lumos", "descendo"]
-    magic_book[keys[i]]
-    result[0] = 2
+def get_two(number):
+    if number == 0:
+        expected[2] = 2
+        2 / number
+    else:
+        expected[2] = 1
+
+
+def get_three(number):
+    if number < 0:
+        expected[3] = 2
+        raise ArithmeticError("The number for which the factorial is calculated cannot be negative")
+    elif not isinstance(number, int):
+        expected[3] = 2
+        raise ArithmeticError("The number for which the factorial is calculated must not be an integer")
+    else:
+        expected[3] = 1
+
+
+def get_four(number):
+    if number < 0:
+        expected[4] = 2
+        raise ArithmeticError("Logarithm of ten cannot have a negative value")
+    else:
+        expected[4] = 1
+
+
+def get_five(number):
+    if number == 90:
+        expected[5] = 2
+        raise ZeroDivisionError("Cannot get a tangent of 90")
+    else:
+        expected[5] = 1
+
+
+def cast_magic_methods(doo, foo):
+    expected[0] = doo
+    data = {"1": 7, "3": 2.87, "7": 90, "15": 10, "21": 8, "32": 0, "45": -5}
+    functions = {1: get_one, 2: get_two, 3: get_three, 4: get_four, 5: get_five}
+    if not isinstance(doo, str) or doo not in data:
+        raise ValueError("В учебнике нет такой задачи или она не решается Жениными методами.")
+    if not isinstance(foo, int) or foo not in functions:
+        raise ValueError("У Жени нет метода с таким номером")
+    functions[foo](data[doo])
+
+
+def start(doo):
+    self_arg[0] = doo
+    calculate_equation(doo)
+
 
 ### call
-make_magic_replace
+start
 
 ### data
-[[1], [0], [2]]
+[["1"], ["3"], ["7"], ["15"], ["21"], ["32"], ["45"]]
 
 ### default
-def make_magic_replace(magic_dictionary):
-    # Измени функцию, чтобы она проверяла работу 
+def calculate_equation(equation_number):
+    # Измени функцию, чтобы она проверяла работу
+    for method_number in range(1, 6):
+        cast_magic_methods(equation_number, method_number)
 
 ### expected
-[[1, 0], [2, 1], [1, 0]]
+[[1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 2, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 2], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 1], [1, 1, 1, 1, 1, 2, 1, 2, 2, 1]]
 
 ### advices
 {
     0: {
-        0: "Похоже, не сработала ни одна из функций, abra_cadabra() или focus_pocus()",
-        1: "Должно было сработать исключение для функции abra_cadabra()",
-        2: "Сработало лишнее исключение для функции abra_cadabra()",
+        0: "Похоже в функцию передаются неправильные значения переменной equation_number.",
+        1: "Всё должно быть в порядке, следует обратиться в поддержку.",
     },
     1: {
-        0: "Рома не получил сообщения об ошибке, необходимо использовать print()",
-        1: "Здесь всё должно работать правильно, сообщение об ошибке лишнее",
-        2: "Текст сообщения об ошибке не соответствует",
+        0: "Какой-то из Жениных методов не был проверен",
+        1: "Всё должно быть в порядке, следует обратиться в поддержку.",
+    },
+    2: {
+        0: "Список рабочих методов собран неверно.",
+        1: "Всё должно быть в порядке, следует обратиться в поддержку.",
+    },
+    3: {
+        0: "Список нерабочих методов собран неверно.",
+        1: "Всё должно быть в порядке, следует обратиться в поддержку.",
+    },
+    4: {
+        0: "Сообщения не выводятся или неверные.",
+        1: "Всё должно быть в порядке, следует обратиться в поддержку.",
+    },
+    5: {
+        0: "1 метод не был вызван и проверен.",
+        1: "1 метод не должен был выполняться.",
+        2: "1 метод вызвал ошибку, хотя должен работать.",
+    },
+    6: {
+        0: "2 метод не был вызван и проверен.",
+        1: "2 метод не должен был выполняться.",
+        2: "2 метод вызвал ошибку, хотя должен работать.",
+    },
+    7: {
+        0: "3 метод не был вызван и проверен.",
+        1: "3 метод не должен был выполняться.",
+        2: "3 метод вызвал ошибку, хотя должен работать.",
+    },
+    8: {
+        0: "4 метод не был вызван и проверен.",
+        1: "4 метод не должен был выполняться.",
+        2: "4 метод вызвал ошибку, хотя должен работать.",
+    },
+    9: {
+        0: "5 метод не был вызван и проверен.",
+        1: "5 метод не должен был выполняться.",
+        2: "5 метод вызвал ошибку, хотя должен работать.",
     },
 }
