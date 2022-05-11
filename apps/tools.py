@@ -54,29 +54,17 @@ def get_resolve(task, user):
 
 
 class Result:
-    def __init__(self, status=False, title="Не решено", message=None):
-        self.message = message
-        self.title = title
+    def __init__(self, status=False, title="Не решено", message=[]):
         self.status = status
+        self.title = title
+        self.message = message
 
 
 def get_matrix_length(matrix):
     return tuple(len(n) for n in matrix if isinstance(n, list))
 
 
-def make_message(result, expected, dictionary):
-    advices = {
-        0: {
-            0: "Похоже, не сработала ни одна из функций, abra_cadabra() или focus_pocus()",
-            1: "Должно было сработать исключение для функции abra_cadabra()",
-            2: "Сработало лишнее исключение для функции abra_cadabra()",
-        },
-        1: {
-            0: "Рома не получил сообщения об ошибке, необходимо использовать print()",
-            1: "Здесь всё должно работать правильно, сообщение об ошибке лишнее",
-            2: "Текст сообщения об ошибке не соответствует",
-        },
-    }
+def make_message(result, expected, advices):
     message = []
     if advices:
         for n, value in enumerate(result):
@@ -90,30 +78,26 @@ def make_message(result, expected, dictionary):
 
 
 def check_resolve(task, resolve):
-    file_name = "resolve"
+    file_name, result, message = "resolve", [], Result()
     file_path = write_to_the_file("\n\n".join((resolve.resolve, task.code)), check_directory(resolve.folder), file_name)
-    result = []
-    for data in literal_eval(task.data):
-        try:
+    try:
+        for data in literal_eval(task.data):
             resolving = get_import(file_name, file_path)
             getattr(resolving, task.call)(*data)
             result.append(getattr(resolving, "get_result")())
-        except Exception as exc:
-            shutil.rmtree(os.path.join(MEDIA_ROOT, resolve.folder))
-            return Result(
-                False,
-                "Функция не работает:",
-                [
-                    error
-                    if "expected an indented block after function" not in (error := exc.__repr__()[:57] + "...")
-                    else "Напиши свой код ниже."
-                ],
-            )
-    shutil.rmtree(os.path.join(MEDIA_ROOT, resolve.folder))
-    if not get_matrix_length(result) == get_matrix_length(expected := literal_eval(task.expected)):
-        return Result(False, "Неожиданный результат, возможно, стоит обратиться в поддержку", [])
-    elif result == expected:
-        return Result(True, "Решено", [])
+    except Exception as exc:
+        if "block after function" in str(exc):
+            message.title = "Напиши свой код ниже."
+        else:
+            message.title = "Функция не работает:"
+            message.message = [exc.__repr__()[:57] + "..."]
     else:
-        message = make_message(result, expected, task)
-        return Result(False, "Не решено:", message)
+        if result == (expected := literal_eval(task.expected)):
+            message.status, message.title = True, "Решено"
+        elif not get_matrix_length(result) == get_matrix_length(expected):
+            message.title = "Неожиданный результат, возможно, стоит обратиться в поддержку"
+        else:
+            message.title, message.message = "Не решено:", make_message(result, expected, literal_eval(task.advices))
+    finally:
+        shutil.rmtree(os.path.join(MEDIA_ROOT, resolve.folder))
+    return message
